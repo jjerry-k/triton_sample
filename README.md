@@ -1,1 +1,1 @@
-# triton_sample
+# Triton Inference Server Example

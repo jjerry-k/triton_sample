@@ -1,0 +1,6 @@
+torch
+torchvision
+tritonclient[all]
+opencv-python
+fastapi
+uvicorn
