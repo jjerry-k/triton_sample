@@ -3,7 +3,7 @@ import cv2
 from api.utils import img_to_base64
 
 # Test Mnist
-img_path = "mnist_sample.jpg"
+img_path = "test_image/mnist_sample.jpg"
 img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 img_enc = img_to_base64(img)
 req = {"image": img_enc}
@@ -16,7 +16,7 @@ else:
     
 
 # Test ResNet
-img_path = "kitten.jpg"
+img_path = "test_image/kitten.jpg"
 img = cv2.imread(img_path)[..., :3]
 img = cv2.resize(img, (224, 224))
 img_enc = img_to_base64(img)
