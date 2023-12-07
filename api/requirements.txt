@@ -1,5 +1,4 @@
-torch
-torchvision
+numpy
 tritonclient[all]
 opencv-python
 fastapi
