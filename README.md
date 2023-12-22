@@ -17,6 +17,7 @@ docker compose up
 ## To Do List
 - [ ] GPU Mode
 - [ ] Detection router
+  - [ ] Postprocessing
 - [ ] Segmentation router
 - [ ] Variable input type
 - [ ] Variable output type

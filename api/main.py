@@ -1,7 +1,5 @@
 from fastapi import FastAPI, APIRouter
 
-from routes import mnist, resnet50
-
 app = FastAPI()
 
 router = APIRouter(
@@ -14,5 +12,9 @@ def health() -> bool:
     return {"success": True}
 
 app.include_router(router)
-app.include_router(mnist.router)
-app.include_router(resnet50.router)
+
+# Import endpoints in routes
+import routes
+for k, v in routes.__dict__.items():
+    if "router" in dir(v):
+        exec(f"app.include_router({v.router})")

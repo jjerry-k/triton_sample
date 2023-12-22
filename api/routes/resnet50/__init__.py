@@ -14,16 +14,22 @@ router = APIRouter(
 )
 
 outputs = [grpcclient.InferRequestedOutput("OUTPUT__0")]
-
+mean = [[[0.485]], [[0.456]], [[0.406]]]
+std = [[[0.229]], [[0.224]], [[0.225]]]
+        
 @router.post("/predict", response_model=Response)
 async def predict(data: Request) -> Response:
     request_id = uuid.uuid4().hex
     logger.info(f"Start Requst (ID: {request_id})")
     try:
         # Preprocessing
-        img = base64_to_img(data.image)
-        img = img.reshape(1, 3, 224, 224)
-
+        img = base64_to_img(data.image) / 255.
+        # (H, W, 3) -> (3, H, W) -> (1, 3, H, W)
+        img = img.reshape(256, 256, 3)
+        img = img.transpose([2, 0, 1])
+        img = (img - mean) / std
+        img = img[np.newaxis]
+        
         # Inference
         inputs = [grpcclient.InferInput("INPUT__0", img.shape, "FP32")]
         inputs[0].set_data_from_numpy(img.astype(np.float32))

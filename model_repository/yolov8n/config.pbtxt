@@ -1,4 +1,4 @@
-name: "resnet50"
+name: "yolov8n"
 platform: "pytorch_libtorch"
 max_batch_size: 128
 dynamic_batching { }
@@ -12,13 +12,13 @@ input [
   {
     name: "INPUT__0"
     data_type: TYPE_FP32
-    dims: [ 3, 256, 256 ]
+    dims: [ 3, 640, 640 ]
   }
 ]
 output [
   {
     name: "OUTPUT__0"
     data_type: TYPE_FP32
-    dims: [ 1000 ]
+    dims: [ 84, 8400 ]
   }
 ]

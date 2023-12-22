@@ -1,45 +1,48 @@
 import uuid
+import json
 import traceback
 from fastapi import APIRouter, HTTPException, status
 
-from settings import logger, grpcclient, TRITON_CLIENT
+from settings import logger, grpcclient, TRITON_CLIENT, IMAGENET_INDEX
 from utils import np, base64_to_img
 
 from .model import Request, Response
 
 router = APIRouter(
-    prefix="/mnist",
-    tags=["Mnist Classification"]
+    prefix="/yolov8n",
+    tags=["Object Detection"]
 )
 
 outputs = [grpcclient.InferRequestedOutput("OUTPUT__0")]
-mean, std = 0.1307, 0.3081
+mean = [[[0.485]], [[0.456]], [[0.406]]]
+std = [[[0.229]], [[0.224]], [[0.225]]]
 
-@router.post("/predict", response_model=Response)
-async def predict(data: Request) -> Response:
+@router.post("/predict")
+async def predict(data: Request):
     request_id = uuid.uuid4().hex
     logger.info(f"Start Requst (ID: {request_id})")
     try:
         # Preprocessing
-        img = base64_to_img(data.image, "gray")
-        img = img.reshape(1, 1, 28, 28)/255.        
-        img = img / (img.max() + 1e-7)
+        img = base64_to_img(data.image) / 255.
+        # (H, W, 3) -> (3, H, W) -> (1, 3, H, W)
+        img = img.reshape(640, 640, 3)
+        img = img.transpose([2, 0, 1])
         img = (img - mean) / std
+        img = img[np.newaxis]
         
         # Inference
         inputs = [grpcclient.InferInput("INPUT__0", img.shape, "FP32")]
         inputs[0].set_data_from_numpy(img.astype(np.float32))
         results = await TRITON_CLIENT.infer(
-                                            model_name="mnist_cnn",
+                                            model_name="yolov8n",
                                             inputs=inputs,
                                             outputs=outputs
                                         )
 
         # Postprocessing
         output = results.as_numpy("OUTPUT__0")
-        top_1 = output.argmax()
         logger.info(f"Success Requst (ID: {request_id})")
-        return Response(prediction=top_1)
+        return {"result": output.shape}
         
     except Exception as e:
         logger.error(f"Error Requst (ID: {request_id}), {traceback.format_exc()}")

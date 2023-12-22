@@ -1,5 +1,5 @@
 numpy
-tritonclient[all]
+tritonclient[all]==2.40.0
 opencv-python
 fastapi
 uvicorn
